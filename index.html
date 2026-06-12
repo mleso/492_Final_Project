@@ -83,6 +83,7 @@
             background: rgb(185, 68, 68);
         }
 
+        /* The CSS for the "Legend" button  */
         #legend-panel {
             position: absolute;
             bottom: 40px;
@@ -125,6 +126,7 @@
             vertical-align: middle;
         }
  
+        /* The CSS for the "Title" button  */
         #popup {
           box-sizing: border-box;
           position: absolute;
@@ -178,6 +180,7 @@
         }
         #close-btn-3:hover { color: #000; }
 
+        /* The CSS for the "User Guide" button  */
         #instructions-popup {
             box-sizing: border-box;
             position: absolute;
@@ -193,7 +196,7 @@
             font-family: 'Libre Baskerville', serif;
             text-align: center;
         }
-
+        /* The CSS for the "Credits" popup  */
         #ttb-credit {
             box-sizing: border-box;
             position: absolute;
@@ -285,7 +288,7 @@
      		    <h2>Oregon Wine Pioneers: A Spatial History</h2>
      		    <p>Created by: Matt Lesowski</p>
         </div>
-
+    <!--  Legend div  -->
         <div id="legend-panel">
           <button id="legend-toggle">Legend  ▼</button>
             <div class="legend-body">
@@ -306,7 +309,8 @@
                 </div>
             </div>
         </div>
-
+        
+        <!--  User Guide div  -->
         <div id="instructions-popup">
             <button id="close-btn-2">✕</button>
             <h2>User Guide</h2>
@@ -315,13 +319,16 @@
             <p>Click the Red Button in the upper right corner to begin, and click the wine glass markers to learn more about each winery. Use "Click to Explore" to fly between locations, or "Reset Map" to return to the start.</p>
         </div>
 
+        <!--  Credits div  -->
         <div id="ttb-credit">
             <button id="close-btn-3">✕</button>
              <p>AVA boundary data courtesy of the U.S. Alcohol and Tobacco Tax and Trade Bureau (TTB).</p>
         </div>
 
+        <!--  Fly div  -->
         <button id='fly'>🍷 Click to Explore 5 of Oregon's Historical Wine Producers!</button> 
 
+        <!--  Reset div  -->
         <button id="reset">Reset Map View</button>
 
     <script> 
@@ -332,7 +339,7 @@
         var map = new mapboxgl.Map({
           container: 'map', // id of a div on your page, where the map will be inserted
           style: 'mapbox://styles/mles/cmpyf8ohv003t01rbh956cgrq', // stylesheet location
-          center: [-123.00, 44.75], // starting position [lng, lat] eg. [-122.6788, 45.5212]
+          center: [-123.00, 44.75], // starting position [lng, lat]
           zoom: 7.3, // starting zoom
         });
 
@@ -384,7 +391,7 @@
         });
 
         var marker = new mapboxgl.Marker(createWineLabel())
-            .setLngLat(flyLocations[0]) // put the marker at the first starting position in the flyLocations array [lng, lat]
+            .setLngLat(flyLocations[0]) // put the marker at the first starting position in the flyLocations array 
             .setPopup(popup) //add the popup to the marker 
             .addTo(map);
         
@@ -421,7 +428,7 @@
         });
 
         var marker2 = new mapboxgl.Marker(createWineLabel())
-            .setLngLat(flyLocations[1]) // put the marker at the second starting position in the flyLocations array [lng, lat]
+            .setLngLat(flyLocations[1]) // put the marker at the second starting position in the flyLocations array
             .setPopup(popup2) //add the popup to the marker 
             .addTo(map);
         
@@ -458,7 +465,7 @@
         });
 
         var marker3 = new mapboxgl.Marker(createWineLabel())
-            .setLngLat(flyLocations[2]) // put the marker at the third starting position in the flyLocations array [lng, lat]
+            .setLngLat(flyLocations[2]) // put the marker at the third starting position in the flyLocations array
             .setPopup(popup3) //add the popup to the marker 
             .addTo(map);
 
@@ -495,7 +502,7 @@
         });
 
         var marker4 = new mapboxgl.Marker(createWineLabel())
-            .setLngLat(flyLocations[3]) // put the marker at the fourth starting position in the flyLocations array [lng, lat]
+            .setLngLat(flyLocations[3]) // put the marker at the fourth starting position in the flyLocations array 
             .setPopup(popup4) //add the popup to the marker 
             .addTo(map);
 
@@ -532,7 +539,7 @@
         });
 
         var marker5 = new mapboxgl.Marker(createWineLabel())
-            .setLngLat(flyLocations[4]) // put the marker at the fifth starting position in the flyLocations array [lng, lat]
+            .setLngLat(flyLocations[4]) // put the marker at the fifth starting position in the flyLocations array 
             .setPopup(popup5) //add the popup to the marker 
             .addTo(map);
 
