@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <title>Oregon Wine Production: A Brief Spatial History</title>
+    <meta name='viewport' content="width=device-width, initial-scale=1.0" />
+    <!--    Include the reference to the Mapbox JavaScript here in the <head> of the page  -->
+     <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
+
+
+    <!--    Include the reference to the Mapbox CSS here in between <head> tags  -->
+     <link href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <style>
+        /* CSS code  */
+        body { 
+            margin:0; 
+            padding:0; 
+            font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+        }
+
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+
+        .mapboxgl-popup-content {
+            font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+            background: rgba(255, 255, 255, 0.91);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 320px;
+            min-height: 200px;
+        }
+
+        .mapboxgl-popup {
+            max-width: 320px !important;
+        }
+
+        .mapboxgl-ctrl-group {
+            background: rgba(255, 255, 255, 0.80);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .mapboxgl-ctrl-group button {
+            background-color: transparent;
+        }
+
+        .mapboxgl-ctrl-group button:hover {
+            background-color: rgba(173, 21, 21, 0.15);
+        }
+
+        .mapboxgl-ctrl-bottom-right {
+            margin-bottom: 20px;
+        }
+
+        .wine-popup img {
+            width: 100%;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+
+        .wine-popup .next-page,
+        .wine-popup .prev-page {
+            background: rgb(173, 21, 21);
+            color: oldlace;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .wine-popup .next-page:hover,
+        .wine-popup .prev-page:hover {
+            background: rgb(185, 68, 68);
+        }
+
+        #legend-panel {
+            position: absolute;
+            bottom: 40px;
+            left: 20px;
+            z-index: 9999;
+            background: rgba(255, 255, 255, 0.80);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+            width: 250px;
+            overflow: hidden;
+        }
+
+        #legend-toggle {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background: rgb(173, 21, 21);
+            color: oldlace;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .legend-body {
+            padding: 10px;
+            font-size: 12px;
+        }
+
+        .legend-body.collapsed {
+            display: none;
+        }
+
+        .color-box {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+ 
+        #popup {
+          box-sizing: border-box;
+          position: absolute;
+
+          width: 375px;
+          left: 20px;
+          padding: 20px;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
+          z-index: 9999;
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.80);
+          text-align: center;
+        } 
+
+        #yt-video {
+            color: rgb(173, 21, 21);
+            font-weight: bold;
+        }
+
+        #close-btn {
+          float: right;
+          cursor: pointer;
+          border: none;
+          background: none;
+          font-size: 16px;
+          color: #666;
+          transition: color 0.2s ease;
+        }
+        #close-btn:hover { color: #000; }
+
+        #close-btn-2 {
+            float: right;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            color: #666;
+            transition: color 0.2s ease;
+        }
+        #close-btn-2:hover { color: #000; }
+
+        #close-btn-3 {
+            float: right;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            color: #666;
+            transition: color 0.2s ease;
+        }
+        #close-btn-3:hover { color: #000; }
+
+        #instructions-popup {
+            box-sizing: border-box;
+            position: absolute;
+            top: 150px;
+            right: 20px;
+            width: 280px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 9999;
+            border-radius: 8px;
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.80);
+            font-family: 'Libre Baskerville', serif;
+            text-align: center;
+        }
+
+        #ttb-credit {
+            box-sizing: border-box;
+            position: absolute;
+            bottom: 40px;
+            left: 290px;
+            width: 275px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 9999;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.90);
+            font-family: 'Libre Baskerville', serif;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* The CSS for the "Reset" button  */
+        #reset {
+            position: absolute;
+            bottom: 50px;
+            right: 60px;
+            z-index: 9999;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+            color: rgb(173, 21, 21);
+            background: rgba(255, 255, 255, 0.80);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: all 0.2s ease-in-out;
+        }
+
+        #reset:hover {
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+        }
+
+        /* The CSS for the "Fly" button  */
+        #fly {
+            display: block; /* displays over the map */
+            position: absolute; /* displays over the map */ 
+            top: 20px;             /* 20px down from the top edge */
+            right: 20px;           /* 20px inward from the RIGHT edge */
+            z-index: 9999;         /* Keeps it floating above the map */
+                    
+            width: 280px;
+            height: 70px;
+            padding: 10px;
+            border: none;
+            border-radius: 6px; /* rounded corners */
+            font-size: 14px;
+            text-align: center;
+            font-weight: bold;
+            font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+            color: oldlace;
+            background: rgb(173, 21, 21);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: all 0.2s ease-in-out; /* Smooth transition for hover effects */
+          }
+
+        /* --- HOVER STATE (Makes it feel clickable) --- */
+        #fly:hover {
+              background: rgb(185, 68, 68); /* Fades into a deeper rich red */
+              transform: translateY(-2px);   /* Lifts up slightly */
+              box-shadow: 0 6px 12px rgba(0,0,0,0.25); /* Deepens the shadow */
+          }
+
+        /* Active click state */
+        #fly:active {
+              transform: translateY(1px);
+              box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            }
+    </style>
+  </head>
+
+  <body>
+    <!--  Map div   -->
+       <div id='map'></div>
+       <br/>
+   
+    <!--  Popup div  -->
+        <div id="popup">
+            <button id="close-btn">✕</button>
+     		    <h2>Oregon Wine Pioneers: A Spatial History</h2>
+     		    <p>Created by: Matt Lesowski</p>
+        </div>
+
+        <div id="legend-panel">
+          <button id="legend-toggle">Legend  ▼</button>
+            <div class="legend-body">
+                <div class="page page-1">
+                    <h3>American Viticulture Areas (AVAs) — 2026</h3>
+                    <p><span class="color-box" style="background:#1b85ee; opacity: 0.7;"></span>Willamette Valley</p>
+                    <p><span class="color-box" style="background:#37aa31; opacity: 0.7;"></span>Tualatin Hills</p>
+                    <p><span class="color-box" style="background:#fbc618; opacity: 0.7;"></span>Chehalem Mountains</p>
+                    <p><span class="color-box" style="background:#999070; opacity: 0.7;"></span>Laurelwood District</p>
+                    <p><span class="color-box" style="background:#b8967f; opacity: 0.7;"></span>Ribbon Ridge</p>
+                    <p><span class="color-box" style="background:#f85dde; opacity: 0.7;"></span>Yamhill-Carlton</p>
+                    <p><span class="color-box" style="background:#4f05fa; opacity: 0.7;"></span>Dundee Hills</p>
+                    <p><span class="color-box" style="background:#00ff22; opacity: 0.7;"></span>McMinnville</p>
+                    <p><span class="color-box" style="background:#f73636; opacity: 0.7;"></span>Van Duzer Corridor</p>
+                    <p><span class="color-box" style="background:#dfef06; opacity: 0.7;"></span>Eola-Amity Hills</p>
+                    <p><span class="color-box" style="background:#415afb; opacity: 0.7;"></span>Mount Pisgah</p>
+                    <p><span class="color-box" style="background:#000f52; opacity: 0.7;"></span>Lower Long Tom</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="instructions-popup">
+            <button id="close-btn-2">✕</button>
+            <h2>User Guide</h2>
+            <h3>This map is designed to help you explore Oregon's historical wine production.</h3>
+            <p> American Viticulture Areas, or AVAs, are designated wine-growing regions in the United States that have unique geographical and climatic characteristics. Each AVA has terrain and influences site selection, fruit quality, and farming practices.</p>
+            <p>Click the Red Button in the upper right corner to begin, and click the wine glass markers to learn more about each winery. Use "Click to Explore" to fly between locations, or "Reset Map" to return to the start.</p>
+        </div>
+
+        <div id="ttb-credit">
+            <button id="close-btn-3">✕</button>
+             <p>AVA boundary data courtesy of the U.S. Alcohol and Tobacco Tax and Trade Bureau (TTB).</p>
+        </div>
+
+        <button id='fly'>🍷 Click to Explore 5 of Oregon's Historical Wine Producers!</button> 
+
+        <button id="reset">Reset Map View</button>
+
+    <script> 
+        // Mapbox access token
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWxlcyIsImEiOiJjbW9zemp3Y3IwNHN1MnZwdXoyNjVwNTA0In0.4zg62F8KFJl-7rfmklKOoQ'
+
+        // Initialize the map
+        var map = new mapboxgl.Map({
+          container: 'map', // id of a div on your page, where the map will be inserted
+          style: 'mapbox://styles/mles/cmpyf8ohv003t01rbh956cgrq', // stylesheet location
+          center: [-123.00, 44.75], // starting position [lng, lat] eg. [-122.6788, 45.5212]
+          zoom: 7.3, // starting zoom
+        });
+
+        /* Variables for the marker and fly-to locations*/
+        var clickCounter = 0; // keep track of the number of times the user has clicked
+        var flyLocations = [[-123.1884, 45.2143], [-123.049722, 45.338611], [-123.0556336, 45.2655399], [-123.296885, 44.286631], [-123.0945, 44.9788]]; // Where the map will fly to
+
+        function createWineLabel() {
+          var el = document.createElement('div');
+            el.innerHTML = '🍷';
+            el.style.fontSize = '26px';
+            el.style.cursor = 'pointer';
+          return el;
+        }
+
+        map.on('load', function () {
+
+        // Add popups and markers to the map
+        var popup = new mapboxgl.Popup({ offset: 15 })
+            .setHTML(`
+              <div class="wine-popup">
+                <div class="page page-1">
+                    <h3>The Eyrie Vineyards, est. 1965</h3>
+                    <p class="history-note">Founded in the Dundee Hills by Oregon wine pioneers David ("Papa Pinot") and Diana Lett, Eyrie vineyards is home to the oldest Pinot Noir vines in the entire Willamette Valley. Their original downtown winery is still in operation, and continues to produce award-winning family wines to this day.</p>
+                    <a class="yt-video" href="https://www.youtube.com/watch?v=mbBQzbUWLiw" target="_blank">Learn More on YouTube</a>
+                    <br>
+                    <button class="next-page">→</button>
+                </div>
+                <div class="page page-2" style="display:none;">
+                    <h3>Image Gallery</h3>
+                    <img src="images/Eyrie1.jpg" alt="Eyrie Founders">
+                    <img src="images/Eyrie2.jpg" alt="Eyrie Winery">
+                    <p class="photo-credit">Photos courtesy of Oregon Wine Press</p>
+                    <button class="prev-page">←</button>
+                </div>
+              </div>
+        `);
+
+        popup.on('open', function () {
+            var popupEl = popup.getElement();
+            popupEl.querySelector('.next-page').addEventListener('click', function () {
+                popupEl.querySelector('.page-1').style.display = 'none';
+                popupEl.querySelector('.page-2').style.display = 'block';
+            });
+            popupEl.querySelector('.prev-page').addEventListener('click', function () {
+                popupEl.querySelector('.page-2').style.display = 'none';
+                popupEl.querySelector('.page-1').style.display = 'block';
+            });
+        });
+
+        var marker = new mapboxgl.Marker(createWineLabel())
+            .setLngLat(flyLocations[0]) // put the marker at the first starting position in the flyLocations array [lng, lat]
+            .setPopup(popup) //add the popup to the marker 
+            .addTo(map);
+        
+        var popup2 = new mapboxgl.Popup({ offset: 15 })
+            .setHTML(`
+              <div class="wine-popup">
+                <div class="page page-1">
+                    <h3>Adelsheim Vineyard, est. 1971</h3>
+                    <p class="history-note">Founded in 1971 by David Adelsheim, a foundational piece of the Oregon wine industry. Beyond planting early vines, Adelsheim drew the map for the region—co-drafting the 1977 wine labeling regulations and heading the petition that established the overarching Willamette Valley AVA.</p>
+                    <a class="yt-video" href="https://youtu.be/_0qq03Y5Zwo?si=WsMv8kOE5h-XeAme" target="_blank">Learn More on YouTube</a>
+                    <br>
+                    <button class="next-page">→</button>
+                </div>
+                <div class="page page-2" style="display:none;">
+                    <h3>Image Gallery</h3>
+                    <img src="images/Adelsheim1.jpg" alt="Adelsheim Founders">
+                    <img src="images/Adelsheim2.jpg" alt="Adelsheim Vineyard">
+                    <p class="photo-credit">Photos courtesy of Oregon Wine Press</p>
+                    <button class="prev-page">←</button>
+                </div>
+              </div>
+        `);
+
+        popup2.on('open', function () {
+            var popupEl = popup2.getElement();
+            popupEl.querySelector('.next-page').addEventListener('click', function () {
+                popupEl.querySelector('.page-1').style.display = 'none';
+                popupEl.querySelector('.page-2').style.display = 'block';
+            });
+            popupEl.querySelector('.prev-page').addEventListener('click', function () {
+                popupEl.querySelector('.page-2').style.display = 'none';
+                popupEl.querySelector('.page-1').style.display = 'block';
+            });
+        });
+
+        var marker2 = new mapboxgl.Marker(createWineLabel())
+            .setLngLat(flyLocations[1]) // put the marker at the second starting position in the flyLocations array [lng, lat]
+            .setPopup(popup2) //add the popup to the marker 
+            .addTo(map);
+        
+        var popup3 = new mapboxgl.Popup({ offset: 15 })
+            .setHTML(`
+              <div class="wine-popup">
+                <div class="page page-1">
+                    <h3>Domaine Drouhin, est. 1985</h3>
+                    <p class="history-note">Founded by Véronique and Robert Drouhin; this legendary Burgundian family brought international attention to Oregon's Willamette Valley, validating its world-class terroir through their meticulous viticultural practices.</p>
+                    <a class="yt-video" href="https://youtu.be/JLo1hnUbqeA?si=1DVpi-YE_DsfYLiF" target="_blank">Learn More on YouTube</a>
+                    <br>
+                    <button class="next-page">→</button>
+                </div>
+                    <div class="page page-2" style="display:none;">
+                        <h3>Image Gallery</h3>
+                        <img src="images/Drouhin1.jpg" alt="Domaine Drouhin Founders">
+                        <img src="images/Drouhin2.jpg" alt="Domaine Drouhin Winery">
+                        <p class="photo-credit">Photos courtesy of Oregon Wine Press</p>
+                        <button class="prev-page">←</button>
+                    </div>
+                </div>
+          `);
+
+        popup3.on('open', function () {
+            var popupEl = popup3.getElement();
+            popupEl.querySelector('.next-page').addEventListener('click', function () {
+                popupEl.querySelector('.page-1').style.display = 'none';
+                popupEl.querySelector('.page-2').style.display = 'block';
+            });
+            popupEl.querySelector('.prev-page').addEventListener('click', function () {
+                popupEl.querySelector('.page-2').style.display = 'none';
+                popupEl.querySelector('.page-1').style.display = 'block';
+            });
+        });
+
+        var marker3 = new mapboxgl.Marker(createWineLabel())
+            .setLngLat(flyLocations[2]) // put the marker at the third starting position in the flyLocations array [lng, lat]
+            .setPopup(popup3) //add the popup to the marker 
+            .addTo(map);
+
+        var popup4 = new mapboxgl.Popup({ offset: 15 })
+            .setHTML(`
+              <div class="wine-popup">
+                <div class="page page-1">
+                  <h3>Benton-Lane Winery, est. 1988</h3>
+                  <p class="history-note">Founded by Steve and Carol Girard on a historic sheep ranch, Benton-Lane valued organic, dry-farmed viticulture in a lesser-known southern corner of the valley. Their decades of dedication culminated in the 2021 designation of the Lower Long Tom AVA"</p>
+                  <a class="yt-video" href="https://youtu.be/SDgwliw-KNU?si=a40O6ScrnznLACv3" target="_blank">Learn More on YouTube</a>  
+                  <br>
+                  <button class="next-page">→</button>
+                </div>
+                <div class="page page-2" style="display:none;">
+                    <h3>Image Gallery</h3>
+                    <img src="images/BentonLane1.jpg" alt="Benton-Lane Founders">
+                    <img src="images/BentonLane2.jpg" alt="Benton-Lane Winery">
+                    <p class="photo-credit">Photos courtesy of Oregon Wine Press</p>
+                    <button class="prev-page">←</button>
+                </div>
+              </div>
+          `);
+
+        popup4.on('open', function () {
+            var popupEl = popup4.getElement();
+            popupEl.querySelector('.next-page').addEventListener('click', function () {
+                popupEl.querySelector('.page-1').style.display = 'none';
+                popupEl.querySelector('.page-2').style.display = 'block';
+            });
+            popupEl.querySelector('.prev-page').addEventListener('click', function () {
+                popupEl.querySelector('.page-2').style.display = 'none';
+                popupEl.querySelector('.page-1').style.display = 'block';
+            });
+        });
+
+        var marker4 = new mapboxgl.Marker(createWineLabel())
+            .setLngLat(flyLocations[3]) // put the marker at the fourth starting position in the flyLocations array [lng, lat]
+            .setPopup(popup4) //add the popup to the marker 
+            .addTo(map);
+
+        var popup5 = new mapboxgl.Popup({ offset: 15 })
+            .setHTML(`
+              <div class="wine-popup">
+                <div class="page page-1">
+                  <h3>Walter Scott, est. 2008</h3>
+                  <p class="history-note">Founded in 2008 by acclaimed winemaker Ken Pahlow, Walter Scott has rapidly ascended to become a top producer in the Eola-Amity Hills. Renowned for mineral-driven Chardonnays and complex, age-worthy Pinot Noirs, Pahlow's approach sets a new standard for Willamette Valley winemaking.</p>
+                  <a class="yt-video" href="https://youtu.be/SC0ltsn_l68?si=FiraTZSyl13pQ3Sl" target="_blank">Learn More on YouTube</a>
+                  <br>
+                  <button class="next-page">→</button>
+                </div>
+                <div class="page page-2" style="display:none;">
+                    <h3>Image Gallery</h3>
+                    <img src="images/WalterScott1.jpg" alt="Walter Scott Founders">
+                    <img src="images/WalterScott2.jpg" alt="Walter Scott Winery">
+                    <p class="photo-credit">Photos courtesy of Oregon Wine Press</p>
+                    <button class="prev-page">←</button>
+                </div>
+              </div>
+          `);
+
+        popup5.on('open', function () {
+            var popupEl = popup5.getElement();
+            popupEl.querySelector('.next-page').addEventListener('click', function () {
+                popupEl.querySelector('.page-1').style.display = 'none';
+                popupEl.querySelector('.page-2').style.display = 'block';
+            });
+            popupEl.querySelector('.prev-page').addEventListener('click', function () {
+                popupEl.querySelector('.page-2').style.display = 'none';
+                popupEl.querySelector('.page-1').style.display = 'block';
+            });
+        });
+
+        var marker5 = new mapboxgl.Marker(createWineLabel())
+            .setLngLat(flyLocations[4]) // put the marker at the fifth starting position in the flyLocations array [lng, lat]
+            .setPopup(popup5) //add the popup to the marker 
+            .addTo(map);
+
+        // Add the zoom contols  
+        map.addControl(new mapboxgl.NavigationControl({
+            showCompass: false
+          }), 'bottom-right');
+
+        // Define the GeoJSON places object
+        const places = {
+            'type': 'FeatureCollection',
+            'features': []
+        };
+        
+         // Add a GeoJSON source containing place coordinates and information.
+        map.addSource('places', {
+        'type': 'geojson',
+        'data': places
+        });
+        });
+
+         // add a 'Listener' to the div with the ID 'fly', that's the button.
+        document.getElementById('fly').addEventListener('click', function () {
+            console.log("flying to " + flyLocations[clickCounter])
+            map.flyTo({
+                center: flyLocations[clickCounter], // look up the value of the click counter in the flyLocations array.
+                zoom: 13,
+                speed: 0.7
+            });
+
+         // update the click counter to the next location
+        clickCounter = clickCounter +1;
+            if (clickCounter > flyLocations.length-1) clickCounter = 0; // if the user has clicked more times than the length of the flyLocations array, reset it to 0.
+
+        });
+
+        document.getElementById('close-btn').onclick = function() {
+            document.getElementById('popup').style.display = 'none';
+        };
+
+        document.getElementById('close-btn-2').onclick = function() {
+            document.getElementById('instructions-popup').style.display = 'none';
+        };
+
+        document.getElementById('close-btn-3').onclick = function() {
+            document.getElementById('ttb-credit').style.display = 'none';
+        };
+
+        document.getElementById('legend-toggle').addEventListener('click', function () {
+            document.querySelector('.legend-body').classList.toggle('collapsed');
+        });
+
+        document.getElementById('reset').addEventListener('click', function () {
+            map.flyTo({
+                center: [-123.00, 44.75],
+                zoom: 7.3,
+                speed: 0.7
+            });
+            clickCounter = 0;
+        });
+
+     </script>
+
+  </body>
+
+</html>
